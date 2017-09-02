@@ -1,0 +1,27 @@
+{
+    "name": "viviniko/promotion",
+    "description": "VIVINIKO Promotion Service Provider",
+	"keywords": ["viviniko", "promotion", "laravel"],
+	"homepage": "http://viviniko.com",
+	"license": "MIT",
+	"authors": [
+        {
+            "name": "viviniko",
+            "email": "viviniko.shop@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "viviniko/cart": "dev-master",
+        "viviniko/repository": "dev-master",
+        "viviniko/support": "dev-master",
+        "viviniko/agent": "dev-master"
+    },
+	"autoload": {
+        "psr-0": {
+            "Viviniko\\Promotion": "src"
+        }
+    },
+    "minimum-stability": "dev",
+	"prefer-stable": true
+}

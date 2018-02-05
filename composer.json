@@ -17,11 +17,18 @@
         "viviniko/support": "dev-master",
         "viviniko/agent": "dev-master"
     },
-	"autoload": {
+    "autoload": {
         "psr-0": {
             "Viviniko\\Promotion": "src"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Viviniko\\Promotion\\PromotionServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev",
-	"prefer-stable": true
+    "prefer-stable": true
 }

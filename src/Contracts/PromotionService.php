@@ -29,10 +29,9 @@ interface PromotionService
      * Get customer coupons.
      *
      * @param $customerId
-     * @param bool $invalid
      * @return mixed
      */
-    public function getCustomerPromotionCoupons($customerId, $invalid = false);
+    public function getUserCoupons($customerId);
 
     /**
      * Generate coupon.

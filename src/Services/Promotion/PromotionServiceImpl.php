@@ -3,6 +3,7 @@
 namespace Viviniko\Promotion\Services\Promotion;
 
 use Carbon\Carbon;
+use Illuminate\Validation\UnauthorizedException;
 use Viviniko\Agent\Facades\Agent;
 use Viviniko\Cart\Services\Collection;
 use Viviniko\Promotion\Contracts\PromotionService;
@@ -12,8 +13,9 @@ use Viviniko\Promotion\Enums\PromotionDiscountConditions;
 use Viviniko\Promotion\Exceptions\InvalidCouponException;
 use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
 use Viviniko\Promotion\Repositories\Promotion\PromotionRepository;
-use Viviniko\Promotion\Repositories\PromotionUsage\PromotionUsageRepository;
+use Viviniko\Promotion\Repositories\Usage\UsageRepository;
 use Illuminate\Support\Facades\Auth;
+use Viviniko\Promotion\Repositories\UserCoupon\UserCouponRepository;
 
 class PromotionServiceImpl implements PromotionService
 {
@@ -21,12 +23,15 @@ class PromotionServiceImpl implements PromotionService
 
     protected $coupons;
 
+    protected $userCoupons;
+
     protected $usages;
 
-    public function __construct(PromotionRepository $promotions, CouponRepository $coupons, PromotionUsageRepository $usages)
+    public function __construct(PromotionRepository $promotions, CouponRepository $coupons, UserCouponRepository $userCoupons, UsageRepository $usages)
     {
         $this->promotions = $promotions;
         $this->coupons = $coupons;
+        $this->userCoupons = $userCoupons;
         $this->usages = $usages;
     }
 
@@ -68,7 +73,6 @@ class PromotionServiceImpl implements PromotionService
     public function getCouponDiscountAmount(Collection $items, $couponCode)
     {
         $now = new Carbon();
-        $customerId = Auth::id();
 
         if ($couponCode && ($coupon = $this->coupons->findByCode($couponCode)) && ($promotion = $coupon->promotion)) {
 
@@ -86,35 +90,23 @@ class PromotionServiceImpl implements PromotionService
                 throw new InvalidCouponException('This coupon has run out.');
             }
 
-            $customerCouponUsages = $this->usages->findByCouponIdAndCustomerId($coupon->id, $customerId);
-            if ($customerCouponUsages->isEmpty()) {
-                // 用户使用次数检查
-                if ($coupon->uses_per_user <= $this->usages->getUsageNumber($coupon->id, Agent::clientId())) {
+            // 用户使用次数检查
+            if ($coupon->uses_per_user > 0) {
+                if (!Auth::check()) {
+                    throw new UnauthorizedException();
+                }
+                if ($coupon->uses_per_user <= $this->usages->getUsageNumber($coupon->id, Auth::id())) {
                     throw new InvalidCouponException('This coupon has run out.');
                 }
-            } else {
-                $customerUsedCount = $customerCouponUsages->filter(function ($item) {
-                    return !empty($item->used_at);
-                })->count();
-                // 用户使用次数检查
-                if ($coupon->uses_per_user <= $customerUsedCount) {
-                    throw new InvalidCouponException('This coupon has run out.');
+            }
+
+            $userCoupon = $this->userCoupons->findByCouponIdAndUserId($coupon->id, Auth::id());
+            if ($userCoupon) {
+                if (!empty($userCoupon->start_time) && $now->lt(Carbon::parse($userCoupon->start_time))) {
+                    throw new InvalidCouponException('This Coupon has not yet begun.');
                 }
-                // 用户优惠码时间检查
-                $customerEffectiveUsages = $customerCouponUsages->filter(function ($item) use ($now) {
-                    if (!empty($item->used_at)) {
-                        return false;
-                    }
-                    if (!empty($item->start_time) && $now->lt(Carbon::parse($item->start_time))) {
-                        return false;
-                    }
-                    if (!empty($item->expire_time) && $now->gt(Carbon::parse($item->expire_time))) {
-                        return false;
-                    }
-                    return true;
-                });
-                if ($customerEffectiveUsages->isEmpty()) {
-                    throw new InvalidCouponException('This Coupon is invalid.');
+                if (!empty($userCoupon->expire_time) && $now->gt(Carbon::parse($userCoupon->expire_time))) {
+                    throw new InvalidCouponException('This Coupon has expired.');
                 }
             }
 
@@ -133,12 +125,11 @@ class PromotionServiceImpl implements PromotionService
      * Get customer coupons.
      *
      * @param $customerId
-     * @param bool $invalid
      * @return mixed
      */
-    public function getCustomerPromotionCoupons($customerId, $invalid = false)
+    public function getUserCoupons($customerId)
     {
-        return $this->promotions->getCustomerPromotionCoupons($customerId, $invalid);
+        return $this->userCoupons->findByUserId($customerId);
     }
 
     /**

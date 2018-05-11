@@ -5,11 +5,13 @@ namespace Viviniko\Promotion\Repositories\Promotion;
 interface PromotionRepository
 {
     /**
-     * Get customer coupons.
+     * Paginate the given query into a simple paginator.
      *
-     * @param $customerId
-     * @param bool $invalid
-     * @return mixed
+     * @param null $perPage
+     * @param string $searchName
+     * @param null $search
+     * @param null $order
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getCustomerPromotionCoupons($customerId, $invalid = false);
+    public function paginate($perPage, $searchName = 'search', $search = null, $order = null);
 }

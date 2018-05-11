@@ -11,7 +11,7 @@ class Promotion extends Model
     protected $tableConfigKey = 'promotion.promotions_table';
 
     protected $fillable = ['title', 'description', 'is_active', 'behavior', 'discount_conditions', 'discount_action',
-        'discount_amount', 'start_time', 'end_time', 'coupon_type', 'auto_gen_coupon', 'uses_per_user', 'uses_per_coupon'];
+        'discount_amount', 'start_time', 'end_time', 'type', 'auto_gen_coupon', 'uses_per_user', 'uses_per_coupon'];
 
     protected $appends = ['coupon_code'];
 
@@ -22,7 +22,7 @@ class Promotion extends Model
         //'auto_gen_coupon' => 'boolean',
         'start_time' => 'datetime',
         'end_time' => 'datetime',
-        'coupon_type' => 'integer',
+        'type' => 'integer',
         'is_active' => 'boolean',
     ];
 

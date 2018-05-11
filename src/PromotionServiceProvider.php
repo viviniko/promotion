@@ -39,8 +39,12 @@ class PromotionServiceProvider extends ServiceProvider
             \Viviniko\Promotion\Repositories\Coupon\EloquentCoupon::class
         );
         $this->app->singleton(
-            \Viviniko\Promotion\Repositories\PromotionUsage\PromotionUsageRepository::class,
-            \Viviniko\Promotion\Repositories\PromotionUsage\EloquentPromotionUsage::class
+            \Viviniko\Promotion\Repositories\UserCoupon\UserCouponRepository::class,
+            \Viviniko\Promotion\Repositories\UserCoupon\EloquentUserCoupon::class
+        );
+        $this->app->singleton(
+            \Viviniko\Promotion\Repositories\Usage\UsageRepository::class,
+            \Viviniko\Promotion\Repositories\Usage\EloquentUsage::class
         );
     }
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Viviniko\Promotion\Repositories\PromotionUsage;
+namespace Viviniko\Promotion\Repositories\UserCoupon;
 
 use Illuminate\Support\Collection;
 
-interface PromotionUsageRepository
+interface UserCouponRepository
 {
     /**
      * Find usage by its id.
@@ -26,15 +26,16 @@ interface PromotionUsageRepository
      * Get customer coupon usages.
      *
      * @param $couponId
-     * @param $customerId
+     * @param $userId
      * @return Collection
      */
-    public function findByCouponIdAndCustomerId($couponId, $customerId);
+    public function findByCouponIdAndUserId($couponId, $userId);
 
     /**
-     * @param $couponId
-     * @param $clientId
-     * @return int
+     * Get customer coupons.
+     *
+     * @param $userId
+     * @return Collection
      */
-    public function getUsageNumber($couponId, $clientId);
+    public function findByUserId($userId);
 }

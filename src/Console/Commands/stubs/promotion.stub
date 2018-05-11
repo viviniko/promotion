@@ -11,7 +11,20 @@ class CreatePromotionTable extends Migration
      * @var string
      */
     protected $promotionsTable;
+
+    /**
+     * @var string
+     */
     protected $promotionCouponsTable;
+
+    /**
+     * @var string
+     */
+    protected $promotionUserCouponTable;
+
+    /**
+     * @var string
+     */
     protected $promotionUsagesTable;
 
     /**
@@ -21,6 +34,7 @@ class CreatePromotionTable extends Migration
     {
         $this->promotionsTable = Config::get('promotion.promotions_table');
         $this->promotionCouponsTable = Config::get('promotion.promotion_coupons_table');
+        $this->promotionUserCouponTable = Config::get('promotion.promotion_user_coupon_table');
         $this->promotionUsagesTable = Config::get('promotion.promotion_usages_table');
     }
 
@@ -42,7 +56,7 @@ class CreatePromotionTable extends Migration
             $table->decimal('discount_amount', 16, 4);
             $table->timestamp('start_time')->nullable();
             $table->timestamp('end_time')->nullable();
-            $table->tinyInteger('coupon_type');
+            $table->tinyInteger('type');
             $table->boolean('auto_gen_coupon');
             $table->unsignedInteger('uses_per_user');
             $table->unsignedInteger('uses_per_coupon');
@@ -51,25 +65,34 @@ class CreatePromotionTable extends Migration
 
         Schema::create($this->promotionCouponsTable, function (Blueprint $table) {
             $table->increments('id');
-            $table->string('code');
+            $table->unsignedInteger('promotion_id');
+            $table->string('code', 32)->unique();
             $table->unsignedInteger('usage_limit');
             $table->unsignedInteger('uses_per_user');
             $table->unsignedInteger('used_num')->default(0);
-            $table->decimal('total_amount', 16, 4)->default(0.00);
             $table->tinyInteger('type')->default(0);
-            $table->unsignedInteger('promotion_id');
             //$table->foreign('promotion_id')->references('id')->on($this->promotionsTable)->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });
 
-        Schema::create($this->promotionUsagesTable, function (Blueprint $table) {
+        Schema::create($this->promotionUserCouponTable, function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('coupon_id');
-            $table->unsignedInteger('customer_id')->nullable();
-            $table->string('client_id', 32);
+            $table->unsignedInteger('user_id');
+            $table->string('description')->nullable();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('expire_time')->nullable();
-            $table->timestamp('used_at')->nullable();
+
+            //$table->foreign('coupon_id')->references('id')->on($this->promotionCouponsTable)->onUpdate('cascade')->onDelete('cascade');
+        });
+
+        Schema::create($this->promotionUsagesTable, function (Blueprint $table) {
+            $table->increments('id');
+            $table->unsignedInteger('promotion_id');
+            $table->unsignedInteger('coupon_id');
+            $table->unsignedInteger('user_id');
+            $table->decimal('total_amount', 16, 4)->default(0.00);
+            $table->decimal('discount_amount', 16, 4)->default(0.00);
             $table->timestamp('created_at')->nullable();
         });
     }
@@ -83,6 +106,7 @@ class CreatePromotionTable extends Migration
     {
         Schema::dropIfExists($this->promotionUsagesTable);
         Schema::dropIfExists($this->promotionCouponsTable);
+        Schema::dropIfExists($this->promotionUserCouponTable);
         Schema::dropIfExists($this->promotionsTable);
     }
 }

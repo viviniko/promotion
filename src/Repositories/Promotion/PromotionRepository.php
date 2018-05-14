@@ -16,7 +16,7 @@ interface PromotionRepository
     public function paginate($perPage, $searchName = 'search', $search = null, $order = null);
 
     /**
-     * Get promotion by given event.
+     * Get promotions by given event.
      *
      * @param $event
      * @return mixed

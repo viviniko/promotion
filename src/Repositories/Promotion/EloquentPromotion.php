@@ -37,6 +37,6 @@ class EloquentPromotion extends SimpleRepository implements PromotionRepository
      */
     public function findByEvent($event)
     {
-        return $this->createModel()->where('event', $event)->first();
+        return $this->findBy('event', $event);
     }
 }

@@ -14,4 +14,12 @@ interface PromotionRepository
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate($perPage, $searchName = 'search', $search = null, $order = null);
+
+    /**
+     * Get promotion by given event.
+     *
+     * @param $event
+     * @return mixed
+     */
+    public function findByEvent($event);
 }

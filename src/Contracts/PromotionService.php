@@ -36,12 +36,12 @@ interface PromotionService
     /**
      * Generate coupon.
      *
-     * @param null $customerId
+     * @param $userId
      * @param array $mergeData
-     * @param string $action
+     * @param string $event
      * @return mixed
      */
-    public function generateCouponForCustomerAction($action, array $mergeData = [], $customerId = null);
+    public function generateCouponByUserEvent($userId, $event, array $mergeData = []);
 
     /**
      * Generate coupons.

@@ -31,4 +31,12 @@ class EloquentPromotion extends SimpleRepository implements PromotionRepository
 
         return parent::search($keywords);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function findByEvent($event)
+    {
+        return $this->createModel()->where('event', $event)->first();
+    }
 }

@@ -4,7 +4,6 @@ namespace Viviniko\Promotion\Services\Promotion;
 
 use Carbon\Carbon;
 use Illuminate\Validation\UnauthorizedException;
-use Viviniko\Agent\Facades\Agent;
 use Viviniko\Cart\Services\Collection;
 use Viviniko\Promotion\Contracts\PromotionService;
 use Viviniko\Promotion\Enums\CouponFormat;
@@ -159,10 +158,10 @@ class PromotionServiceImpl implements PromotionService
         return $rules['qty'] == 1 ? $coupons[0] : $coupons;
     }
 
-    public function generateCouponForCustomerAction($action, array $mergeData = [], $customerId = null)
+    public function generateCouponByUserEvent($userId, $event, array $mergeData = [])
     {
         $code = null;
-        if ($promotion = $this->promotions->findBy('behavior', $action)->first()) {
+        if ($promotion = $this->promotions->findByEvent($event)) {
             $code = $this->generatePromotionCoupons();
             $coupon = $this->coupons->create(array_merge([
                 'promotion_id' => $promotion->id,
@@ -171,17 +170,14 @@ class PromotionServiceImpl implements PromotionService
                 'uses_per_user' => $promotion->uses_per_user,
                 'type' => CouponType::SLAVE,
             ], $mergeData));
-            if ($customerId) {
-                $this->usages->create(array_merge([
-                    'customer_id' => $customerId,
-                    'coupon_id' => $coupon->id,
-                    'client_id' => Agent::clientId(),
-                    'start_time' => new Carbon(),
-                    'expire_time' => (new Carbon())->addDay(),
-                    'used_at' => null,
-                    'created_at' => new Carbon(),
-                ], $mergeData));
-            }
+
+            $this->userCoupons->create(array_merge([
+                'user_id' => $userId,
+                'coupon_id' => $coupon->id,
+                'start_time' => new Carbon(),
+                'expire_time' => (new Carbon())->addDay(),
+                'description' => $event,
+            ], $mergeData));
         }
 
         return $code;

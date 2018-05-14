@@ -24,4 +24,12 @@ class EloquentUserCoupon extends SimpleRepository implements UserCouponRepositor
     {
         return $this->findBy(['user_id' => $userId]);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function existsCouponId($couponId)
+    {
+        return $this->exists('coupon_id', $couponId);
+    }
 }

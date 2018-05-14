@@ -99,16 +99,22 @@ class PromotionServiceImpl implements PromotionService
                 }
             }
 
-            $userCoupon = $this->userCoupons->findByCouponIdAndUserId($coupon->id, Auth::id());
-            if ($userCoupon) {
-                if (!empty($userCoupon->start_time) && $now->lt(Carbon::parse($userCoupon->start_time))) {
-                    throw new InvalidCouponException('This Coupon has not yet begun.');
+            if ($this->userCoupons->existsCouponId($coupon->id)) {
+                if (!Auth::check()) {
+                    throw new AuthenticationException();
                 }
-                if (!empty($userCoupon->expire_time) && $now->gt(Carbon::parse($userCoupon->expire_time))) {
-                    throw new InvalidCouponException('This Coupon has expired.');
+
+                $userCoupon = $this->userCoupons->findByCouponIdAndUserId($coupon->id, Auth::id());
+                if ($userCoupon) {
+                    if (!empty($userCoupon->start_time) && $now->lt(Carbon::parse($userCoupon->start_time))) {
+                        throw new InvalidCouponException('This Coupon has not yet begun.');
+                    }
+                    if (!empty($userCoupon->expire_time) && $now->gt(Carbon::parse($userCoupon->expire_time))) {
+                        throw new InvalidCouponException('This Coupon has expired.');
+                    }
                 }
             }
-
+            
             $discountAction = new PromotionAction($promotion->discount_action, $promotion->discount_amount, $promotion->discount_conditions);
             $amount = $discountAction->getDiscountAmount($items);
             if (!$amount) {

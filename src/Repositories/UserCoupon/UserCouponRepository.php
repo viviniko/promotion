@@ -38,4 +38,10 @@ interface UserCouponRepository
      * @return Collection
      */
     public function findByUserId($userId);
+
+    /**
+     * @param $couponId
+     * @return bool
+     */
+    public function existsCouponId($couponId);
 }

@@ -3,7 +3,6 @@
 namespace Viviniko\Promotion\Services\Promotion;
 
 use Carbon\Carbon;
-use Illuminate\Validation\UnauthorizedException;
 use Viviniko\Cart\Services\Collection;
 use Viviniko\Promotion\Contracts\PromotionService;
 use Viviniko\Promotion\Enums\CouponFormat;
@@ -13,8 +12,9 @@ use Viviniko\Promotion\Exceptions\InvalidCouponException;
 use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
 use Viviniko\Promotion\Repositories\Promotion\PromotionRepository;
 use Viviniko\Promotion\Repositories\Usage\UsageRepository;
-use Illuminate\Support\Facades\Auth;
 use Viviniko\Promotion\Repositories\UserCoupon\UserCouponRepository;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\Auth;
 
 class PromotionServiceImpl implements PromotionService
 {
@@ -92,7 +92,7 @@ class PromotionServiceImpl implements PromotionService
             // 用户使用次数检查
             if ($coupon->uses_per_user > 0) {
                 if (!Auth::check()) {
-                    throw new UnauthorizedException();
+                    throw new AuthenticationException();
                 }
                 if ($coupon->uses_per_user <= $this->usages->getUsageNumber($coupon->id, Auth::id())) {
                     throw new InvalidCouponException('This coupon has run out.');

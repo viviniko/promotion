@@ -1,6 +1,6 @@
 <?php
 
-namespace Viviniko\Promotion\Services\Promotion;
+namespace Viviniko\Promotion\Services\Impl;
 
 use Viviniko\Cart\Services\Collection;
 

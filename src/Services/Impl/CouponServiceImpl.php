@@ -1,10 +1,10 @@
 <?php
 
-namespace Viviniko\Promotion\Services\Coupon;
+namespace Viviniko\Promotion\Services\Impl;
 
-use Viviniko\Promotion\Contracts\CouponService;
 use Viviniko\Promotion\Models\Coupon;
 use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
+use Viviniko\Promotion\Services\CouponService;
 
 class CouponServiceImpl implements CouponService
 {

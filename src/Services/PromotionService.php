@@ -1,12 +1,22 @@
 <?php
 
-namespace Viviniko\Promotion\Contracts;
+namespace Viviniko\Promotion\Services;
 
 use Viviniko\Cart\Services\Collection;
 use Viviniko\Promotion\Exceptions\PromotionException;
 
 interface PromotionService
 {
+    /**
+     * Paginate the given query into a simple paginator.
+     *
+     * @param null $perPage
+     * @param array $wheres
+     * @param array $orders
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
+    public function paginate($perPage, $wheres = [], $orders = []);
+
     /**
      * Format promotion conditions.
      *

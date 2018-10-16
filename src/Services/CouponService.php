@@ -1,6 +1,6 @@
 <?php
 
-namespace Viviniko\Promotion\Contracts;
+namespace Viviniko\Promotion\Services;
 
 interface CouponService
 {

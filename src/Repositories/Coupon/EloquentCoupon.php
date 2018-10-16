@@ -2,14 +2,18 @@
 
 namespace Viviniko\Promotion\Repositories\Coupon;
 
+use Illuminate\Support\Facades\Config;
 use Viviniko\Promotion\Models\Coupon;
-use Viviniko\Repository\SimpleRepository;
+use Viviniko\Repository\EloquentRepository;
 
-class EloquentCoupon extends SimpleRepository implements CouponRepository
+class EloquentCoupon extends EloquentRepository implements CouponRepository
 {
-    protected $modelConfigKey = 'promotion.promotion_coupon';
-
     protected $fieldSearchable = ['code' => 'like', 'promotion_id'];
+
+    public function __construct()
+    {
+        parent::__construct(Config::get('promotion.promotion_coupon'));
+    }
 
     /**
      * @param $code
@@ -17,6 +21,6 @@ class EloquentCoupon extends SimpleRepository implements CouponRepository
      */
     public function findByCode($code)
     {
-        return $this->createModel()->where('code', $code)->first();
+        return $this->findBy('code', $code);
     }
 }

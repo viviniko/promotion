@@ -1,10 +1,12 @@
 <?php
 
-namespace Viviniko\Promotion\Services\Promotion;
+namespace Viviniko\Promotion\Services\Impl;
 
 use Carbon\Carbon;
+use Illuminate\Auth\AuthenticationException;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Config;
 use Viviniko\Cart\Services\Collection;
-use Viviniko\Promotion\Contracts\PromotionService;
 use Viviniko\Promotion\Enums\CouponFormat;
 use Viviniko\Promotion\Enums\CouponType;
 use Viviniko\Promotion\Enums\PromotionDiscountConditions;
@@ -13,8 +15,8 @@ use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
 use Viviniko\Promotion\Repositories\Promotion\PromotionRepository;
 use Viviniko\Promotion\Repositories\Usage\UsageRepository;
 use Viviniko\Promotion\Repositories\UserCoupon\UserCouponRepository;
-use Illuminate\Auth\AuthenticationException;
-use Illuminate\Support\Facades\Auth;
+use Viviniko\Promotion\Services\PromotionService;
+use Viviniko\Repository\SearchPageRequest;
 
 class PromotionServiceImpl implements PromotionService
 {
@@ -32,6 +34,27 @@ class PromotionServiceImpl implements PromotionService
         $this->coupons = $coupons;
         $this->userCoupons = $userCoupons;
         $this->usages = $usages;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function paginate($perPage, $wheres = [], $orders = [])
+    {
+        $request = request();
+        $couponCode = $wheres['coupon_code'] ?? $request->get('search.coupon_code');
+        return $this->promotions->search(
+            SearchPageRequest::create($perPage, $wheres, $orders)
+                ->rules(['title', 'coupon_code', 'start_time' => 'between', 'end_time' => 'between', 'discount_action', 'is_active'])
+                ->request($request, 'search')
+                ->filter(function ($builder) use ($couponCode) {
+                    if (!empty($couponCode)) return $builder;
+                    $promotionTable = Config::get('promotion.promotions_table');
+                    $couponTable = Config::get('promotion.promotion_coupons_table');
+                    return $builder->join($couponTable, "{$couponTable}.promotion_id", '=', "{$promotionTable}.id")
+                        ->whereRaw("({$couponTable}.type='1' AND {$couponTable}.code = '{$couponCode}')");
+                })
+        );
     }
 
     public function formatConditions($dataConditions)

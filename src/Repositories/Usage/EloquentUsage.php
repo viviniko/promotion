@@ -2,11 +2,15 @@
 
 namespace Viviniko\Promotion\Repositories\Usage;
 
-use Viviniko\Repository\SimpleRepository;
+use Illuminate\Support\Facades\Config;
+use Viviniko\Repository\EloquentRepository;
 
-class EloquentUsage extends SimpleRepository implements UsageRepository
+class EloquentUsage extends EloquentRepository implements UsageRepository
 {
-    protected $modelConfigKey = 'promotion.promotion_usage';
+    public function __construct()
+    {
+        parent::__construct(Config::get('promotion.promotion_usage'));
+    }
 
     /**
      * {@inheritdoc}
@@ -20,8 +24,6 @@ class EloquentUsage extends SimpleRepository implements UsageRepository
      * {@inheritdoc}
      */
     public function getUsageNumber($couponId, $userId) {
-        return $this->createModel()->newQuery()
-            ->where(['coupon_id' => $couponId, 'user_id' => $userId])
-            ->count();
+        return $this->count(['coupon_id' => $couponId, 'user_id' => $userId]);
     }
 }

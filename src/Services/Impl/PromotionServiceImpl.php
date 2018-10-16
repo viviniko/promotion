@@ -48,7 +48,7 @@ class PromotionServiceImpl implements PromotionService
                 ->rules(['title', 'coupon_code', 'start_time' => 'between', 'end_time' => 'between', 'discount_action', 'is_active'])
                 ->request($request, 'search')
                 ->filter(function ($builder) use ($couponCode) {
-                    if (!empty($couponCode)) return $builder;
+                    if (empty($couponCode)) return $builder;
                     $promotionTable = Config::get('promotion.promotions_table');
                     $couponTable = Config::get('promotion.promotion_coupons_table');
                     return $builder->join($couponTable, "{$couponTable}.promotion_id", '=', "{$promotionTable}.id")

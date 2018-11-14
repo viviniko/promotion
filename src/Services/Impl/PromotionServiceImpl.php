@@ -117,7 +117,7 @@ class PromotionServiceImpl implements PromotionService
                 if (!Auth::check()) {
                     throw new AuthenticationException();
                 }
-                if ($coupon->uses_per_user <= $this->usages->getUsageNumber($coupon->id, Auth::id())) {
+                if ($coupon->uses_per_user <= $this->usages->getUsageNumber($coupon->id, Auth::user()->email)) {
                     throw new InvalidCouponException('This coupon has run out.');
                 }
             }
@@ -127,7 +127,7 @@ class PromotionServiceImpl implements PromotionService
                     throw new AuthenticationException();
                 }
 
-                $userCoupon = $this->userCoupons->findByCouponIdAndUserId($coupon->id, Auth::id());
+                $userCoupon = $this->userCoupons->findByCouponIdAndUserId($coupon->id, Auth::user()->email);
                 if ($userCoupon) {
                     if (!empty($userCoupon->start_time) && $now->lt(Carbon::parse($userCoupon->start_time))) {
                         throw new InvalidCouponException('This Coupon has not yet begun.');

@@ -78,7 +78,7 @@ class CreatePromotionTable extends Migration
         Schema::create($this->promotionUserCouponTable, function (Blueprint $table) {
             $table->increments('id');
             $table->unsignedInteger('coupon_id');
-            $table->unsignedInteger('user_id');
+            $table->string('user_id');
             $table->string('description')->nullable();
             $table->timestamp('start_time')->nullable();
             $table->timestamp('expire_time')->nullable();
@@ -90,7 +90,7 @@ class CreatePromotionTable extends Migration
             $table->increments('id');
             $table->unsignedInteger('promotion_id');
             $table->unsignedInteger('coupon_id');
-            $table->unsignedInteger('user_id');
+            $table->string('user_id');
             $table->decimal('total_amount', 16, 4)->default(0.00);
             $table->decimal('discount_amount', 16, 4)->default(0.00);
             $table->timestamp('created_at')->nullable();

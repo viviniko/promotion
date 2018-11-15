@@ -3,6 +3,7 @@
 namespace Viviniko\Promotion\Services\Impl;
 
 use Viviniko\Cart\Collection;
+use Viviniko\Currency\Facades\Currency;
 
 class PromotionAction {
 
@@ -45,31 +46,31 @@ class PromotionAction {
      * @return float
      */
     public function getDiscountAmount(Collection $cartItems) {
-        $amount = false;
+
         $items = $this->discountCondition->setCartItems($cartItems)->find();
-        if (count($items) > 0) {
-            switch ($this->action) {
+        if (count($items) == 0) return false;
+        $amount = Currency::createBaseAmount(0);
+        switch ($this->action) {
             case self::PRODUCT_PERCENT:
             case self::PRODUCT_AMOUNT:
                 foreach ($items as $item) {
                     if ($this->action == self::PRODUCT_PERCENT) {
-                        $amount += $item->price * $item->qty * ($this->amount / 100);
+                        $amount = $amount->add($item->subtotal->mul($this->amount / 100));
                     } else {
-                        $amount += $this->amount;
+                        $amount = $amount->add(Currency::createBaseAmount($this->amount));
                     }
                 }
                 break;
             case self::CART_AMOUNT:
-                $amount = $this->amount;
+                $amount = Currency::createBaseAmount($this->amount);
                 break;
             case self::CART_PERCENT:
-                $amount = $cartItems->getSubtotal() * ($this->amount / 100);
+                $amount = $cartItems->getSubtotal()->mul($this->amount / 100);
                 break;
             default:
-                $amount = 0;
                 break;
-            }
         }
+
         return $amount;
     }
 

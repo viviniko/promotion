@@ -2,7 +2,7 @@
 
 namespace Viviniko\Promotion\Services\Impl;
 
-use Viviniko\Cart\Services\Collection;
+use Viviniko\Cart\Collection;
 
 class PromotionAction {
 

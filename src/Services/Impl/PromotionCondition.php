@@ -2,7 +2,7 @@
 
 namespace Viviniko\Promotion\Services\Impl;
 
-use Viviniko\Cart\Services\Collection;
+use Viviniko\Cart\Collection;
 
 class PromotionCondition {
 
@@ -56,7 +56,7 @@ class PromotionCondition {
     }
 
     /**
-     * @var \Viviniko\Cart\Services\Collection
+     * @var \Viviniko\Cart\Collection
      */
     private $items;
 

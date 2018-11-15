@@ -2,7 +2,7 @@
 
 namespace Viviniko\Promotion\Services;
 
-use Viviniko\Cart\Services\Collection;
+use Viviniko\Cart\Collection;
 use Viviniko\Promotion\Exceptions\PromotionException;
 
 interface PromotionService

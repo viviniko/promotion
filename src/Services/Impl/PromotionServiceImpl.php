@@ -6,7 +6,7 @@ use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use Viviniko\Cart\Services\Collection;
+use Viviniko\Cart\Collection;
 use Viviniko\Promotion\Enums\CouponFormat;
 use Viviniko\Promotion\Enums\CouponType;
 use Viviniko\Promotion\Enums\PromotionDiscountConditions;

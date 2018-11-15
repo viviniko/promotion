@@ -15,8 +15,8 @@ class EloquentPromotion extends EloquentRepository implements PromotionRepositor
     /**
      * {@inheritdoc}
      */
-    public function findByEvent($event)
+    public function findAllByEvent($event)
     {
-        return $this->findBy('event', $event);
+        return $this->findAllBy('event', $event);
     }
 }

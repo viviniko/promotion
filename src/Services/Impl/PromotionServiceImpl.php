@@ -190,7 +190,7 @@ class PromotionServiceImpl implements PromotionService
     public function generateCouponByUserEvent($userId, $event, array $mergeData = [])
     {
         $code = null;
-        if ($promotion = $this->promotions->findByEvent($event)->first()) {
+        if ($promotion = $this->promotions->findAllByEvent($event)->first()) {
             $code = $this->generatePromotionCoupons();
             $coupon = $this->coupons->create(array_merge([
                 'promotion_id' => $promotion->id,

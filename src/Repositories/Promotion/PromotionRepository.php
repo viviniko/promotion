@@ -21,5 +21,5 @@ interface PromotionRepository
      * @param $event
      * @return mixed
      */
-    public function findByEvent($event);
+    public function findAllByEvent($event);
 }

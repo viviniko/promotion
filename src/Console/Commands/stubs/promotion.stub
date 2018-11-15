@@ -71,6 +71,7 @@ class CreatePromotionTable extends Migration
             $table->unsignedInteger('uses_per_user');
             $table->unsignedInteger('used_num')->default(0);
             $table->tinyInteger('type')->default(0);
+            $table->tinyInteger('status')->default(0);
             //$table->foreign('promotion_id')->references('id')->on($this->promotionsTable)->onUpdate('cascade')->onDelete('cascade');
             $table->timestamps();
         });

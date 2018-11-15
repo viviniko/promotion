@@ -37,7 +37,7 @@ interface UserCouponRepository
      * @param $userId
      * @return Collection
      */
-    public function findByUserId($userId);
+    public function findAllByUserId($userId);
 
     /**
      * @param $couponId

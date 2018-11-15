@@ -23,9 +23,9 @@ class EloquentUserCoupon extends EloquentRepository implements UserCouponReposit
     /**
      * {@inheritdoc}
      */
-    public function findByUserId($userId)
+    public function findAllByUserId($userId)
     {
-        return $this->findBy(['user_id' => $userId]);
+        return $this->findAllBy(['user_id' => $userId]);
     }
 
     /**

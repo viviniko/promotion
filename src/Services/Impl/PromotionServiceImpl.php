@@ -157,7 +157,7 @@ class PromotionServiceImpl implements PromotionService
      */
     public function getUserCoupons($customerId)
     {
-        return $this->userCoupons->findByUserId($customerId);
+        return $this->userCoupons->findAllByUserId($customerId);
     }
 
     /**

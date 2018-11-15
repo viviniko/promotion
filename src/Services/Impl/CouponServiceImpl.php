@@ -5,6 +5,7 @@ namespace Viviniko\Promotion\Services\Impl;
 use Viviniko\Promotion\Models\Coupon;
 use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
 use Viviniko\Promotion\Services\CouponService;
+use Viviniko\Repository\SearchPageRequest;
 
 class CouponServiceImpl implements CouponService
 {
@@ -13,6 +14,18 @@ class CouponServiceImpl implements CouponService
     public function __construct(CouponRepository $coupons)
     {
         $this->coupons = $coupons;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function paginate($perPage, $wheres = [], $orders = [])
+    {
+        return $this->coupons->search(
+            SearchPageRequest::create($perPage, $wheres, $orders)
+                ->rules(['code' => 'like'])
+                ->request(request(), 'search')
+        );
     }
 
     /**

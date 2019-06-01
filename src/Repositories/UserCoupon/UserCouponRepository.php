@@ -3,25 +3,10 @@
 namespace Viviniko\Promotion\Repositories\UserCoupon;
 
 use Illuminate\Support\Collection;
+use Viviniko\Repository\CrudRepository;
 
-interface UserCouponRepository
+interface UserCouponRepository extends CrudRepository
 {
-    /**
-     * Find usage by its id.
-     *
-     * @param $id
-     * @return mixed
-     */
-    public function find($id);
-
-    /**
-     * Create new usage.
-     *
-     * @param array $data
-     * @return mixed
-     */
-    public function create(array $data);
-
     /**
      * Get customer coupon usages.
      *

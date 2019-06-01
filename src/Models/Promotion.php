@@ -4,6 +4,7 @@ namespace Viviniko\Promotion\Models;
 
 use Viviniko\Promotion\Enums\CouponType;
 use Viviniko\Promotion\Enums\PromotionDiscountAction;
+use Viviniko\Promotion\Enums\PromotionDiscountConditions;
 use Viviniko\Support\Database\Eloquent\Model;
 
 class Promotion extends Model
@@ -27,7 +28,7 @@ class Promotion extends Model
 
     public function setDiscountConditionsAttribute($value)
     {
-        $this->attributes['discount_conditions'] = json_encode($value);
+        $this->attributes['discount_conditions'] = self::formatConditions($value);
     }
 
     public function coupons()
@@ -46,5 +47,32 @@ class Promotion extends Model
     public function getDiscountActionTextAttribute()
     {
         return PromotionDiscountAction::values()[$this->attributes['discount_action']];
+    }
+
+    public static function formatConditions($dataConditions)
+    {
+        $conditions = [];
+        if (is_null($dataConditions['operation']) || !isset(PromotionDiscountConditions::$operations[$dataConditions['operation']])) {
+            return $conditions;
+        }
+        $conditions['operation'] = $dataConditions['operation'];
+        if (!isset($dataConditions['rules']) || !is_array($dataConditions['rules'])) {
+            return $conditions;
+        }
+        $conditions['rules'] = [];
+        foreach ($dataConditions['rules'] as $rule) {
+            if (!is_null($rule['expression']['item'])) {
+                array_walk($rule['expression'], function (&$item) { $item = trim($item); });
+                if (isset(PromotionDiscountConditions::$conditionItems[$rule['expression']['item']])) {
+                    $conditions['rules'][]['expression'] = $rule['expression'];
+                } else if (!empty($rule['condition'])) {
+                    $children = self::formatConditions($rule['condition']);
+                    if (!empty($children)) {
+                        $conditions['rules'][]['condition'] = $children;
+                    }
+                }
+            }
+        }
+        return $conditions;
     }
 }

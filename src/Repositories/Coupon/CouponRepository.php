@@ -2,19 +2,10 @@
 
 namespace Viviniko\Promotion\Repositories\Coupon;
 
-use Viviniko\Repository\SearchRequest;
+use Viviniko\Repository\CrudRepository;
 
-interface CouponRepository
+interface CouponRepository extends CrudRepository
 {
-    /**
-     * Search.
-     *
-     * @param SearchRequest $searchRequest
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
-     */
-    public function search(SearchRequest $searchRequest);
-
     /**
      * Find data by coupon code.
      *

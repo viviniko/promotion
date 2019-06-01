@@ -2,19 +2,10 @@
 
 namespace Viviniko\Promotion\Repositories\Promotion;
 
-use Viviniko\Repository\SearchRequest;
+use Viviniko\Repository\CrudRepository;
 
-interface PromotionRepository
+interface PromotionRepository extends CrudRepository
 {
-    /**
-     * Search.
-     *
-     * @param SearchRequest $searchRequest
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
-     */
-    public function search(SearchRequest $searchRequest);
-
     /**
      * Get promotions by given event.
      *

@@ -8,8 +8,6 @@ use Viviniko\Repository\EloquentRepository;
 
 class EloquentCoupon extends EloquentRepository implements CouponRepository
 {
-    protected $fieldSearchable = ['code' => 'like', 'promotion_id'];
-
     public function __construct()
     {
         parent::__construct(Config::get('promotion.promotion_coupon'));

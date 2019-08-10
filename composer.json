@@ -12,10 +12,8 @@
     ],
     "require": {
         "php": ">=7.0",
-        "viviniko/cart": "dev-master",
         "viviniko/repository": "dev-master",
-        "viviniko/support": "dev-master",
-        "viviniko/agent": "dev-master"
+        "viviniko/support": "dev-master"
     },
     "autoload": {
         "psr-0": {

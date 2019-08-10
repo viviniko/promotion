@@ -2,7 +2,6 @@
 
 namespace Viviniko\Promotion\Services;
 
-use Viviniko\Cart\Collection;
 use Viviniko\Promotion\Exceptions\PromotionException;
 
 interface PromotionService
@@ -18,22 +17,14 @@ interface PromotionService
     public function paginate($perPage, $wheres = [], $orders = []);
 
     /**
-     * Format promotion conditions.
-     *
-     * @param $data
-     * @return mixed
-     */
-    public function formatConditions($data);
-
-    /**
      * Get coupon discount amount.
      *
-     * @param  Collection  $items
+     * @param  $items
      * @param  string  $code
      * @return float
      * @throws PromotionException
      */
-    public function getCouponDiscountAmount(Collection $items, $code);
+    public function calDiscountAmountByCoupon($items, $code);
 
     /**
      * Get customer coupons.

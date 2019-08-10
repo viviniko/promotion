@@ -2,6 +2,7 @@
 
 namespace Viviniko\Promotion\Models;
 
+use Viviniko\Currency\Facades\Currency;
 use Viviniko\Promotion\Enums\CouponType;
 use Viviniko\Promotion\Enums\PromotionDiscountAction;
 use Viviniko\Promotion\Enums\PromotionDiscountConditions;
@@ -49,6 +50,39 @@ class Promotion extends Model
         return PromotionDiscountAction::values()[$this->attributes['discount_action']];
     }
 
+    public function discount($cart)
+    {
+        $discountItems = [];
+        $conditions = self::parseConditions($this->discount_conditions);
+        foreach ($cart->getItems() as $item) {
+            if (self::_testItem($item, $conditions, $cart)) {
+                $discountItems[] = $item;
+            }
+        }
+
+        $amount = Currency::createBaseAmount(0);
+        switch ($this->discount_action) {
+            case PromotionDiscountAction::PRODUCT_PERCENT:
+                foreach ($discountItems as $item) {
+                    $amount = $amount->add($item->subtotal->mul($this->discount_amount / 100));
+                }
+                break;
+            case PromotionDiscountAction::PRODUCT_AMOUNT:
+                $amount = $amount->add(Currency::createBaseAmount($this->discount_amount * count($discountItems)));
+                break;
+            case PromotionDiscountAction::CART_AMOUNT:
+                $amount = Currency::createBaseAmount($this->discount_amount);
+                break;
+            case PromotionDiscountAction::CART_PERCENT:
+                $amount = $cart->subtotal->mul($this->discount_amount / 100);
+                break;
+            default:
+                break;
+        }
+
+        return $amount;
+    }
+
     public static function formatConditions($dataConditions)
     {
         $conditions = [];
@@ -74,5 +108,108 @@ class Promotion extends Model
             }
         }
         return $conditions;
+    }
+
+    /**
+     * Parse conditions.
+     * [ 'all_true' => [ [ 'eq', 'game_gold_id', '23' ], 'any_true' => [ ['eq', 'category_id', '2'], [...] ] ] ]
+     *
+     * @param array $data
+     *
+     * @return array
+     */
+    public static function parseConditions($data) {
+        $conditions = null;
+        if (isset($data['operation']) && isset(PromotionDiscountConditions::$operations[$data['operation']])) {
+            $conditions[$data['operation']] = [];
+            if (!empty($data['rules'])) {
+                foreach($data['rules'] as $item) {
+                    if (!empty($item['expression'])) {
+                        $conditions[$data['operation']][] = [ $item['expression']['exp'], $item['expression']['item'], $item['expression']['value'] ];
+                    } else if (!empty($item['condition'])) {
+                        $conditions[$data['operation']] = self::mergeOperations($conditions[$data['operation']], self::parseConditions($item['condition']));
+                    }
+                }
+            }
+        }
+        return $conditions;
+    }
+
+    protected static function _testItem($item, $conditions, $cart) {
+        $operation = key($conditions);
+        $conditions = $conditions[$operation];
+
+        if (empty($conditions)) {
+            return true;
+        }
+        foreach ($conditions as $key => $condition) {
+            $result = null;
+            if (isset(PromotionDiscountConditions::$operations[$key])) {
+                $result = self::_testItem($item, [$key => $condition], $cart);
+            } else if (isset(PromotionDiscountConditions::$conditionExps[$condition[0]])) {
+                switch ($condition[1]) {
+                    case PromotionDiscountConditions::CONDITION_ITEM_CATEGORY:
+                        // 产品类型
+                        $result = self::_testExp($condition[0], $item->category_id, $condition[2]);
+                        break;
+                    case PromotionDiscountConditions::CONDITION_ITEM_CART_AMOUNT:
+                        // 购物车金额小计
+                        $result = self::_testExp($condition[0], $cart->subtotal, $condition[2]);
+                        break;
+                }
+            }
+            if ($result) {
+                if ($operation == PromotionDiscountConditions::IF_ANY_TRUE)
+                    return true;
+            } else {
+                if ($operation == PromotionDiscountConditions::IF_ALL_TRUE)
+                    return false;
+            }
+        }
+
+        // 当条件都不满足时
+        switch ($operation) {
+            case PromotionDiscountConditions::IF_ALL_TRUE:
+                return true;
+                break;
+            case PromotionDiscountConditions::IF_ANY_TRUE:
+                return false;
+                break;
+        }
+        return false;
+    }
+
+    protected static function _testExp($exp, $a, $b) {
+        $b = is_array($b) ? $b : preg_split('/[^\d]+/', $b);
+        if (empty($b))
+            return false;
+
+        switch($exp) {
+            case PromotionDiscountConditions::CONDITION_EXP_EQ:
+                return in_array($a, $b);
+                break;
+            case PromotionDiscountConditions::CONDITION_EXP_GE:
+                return $a >= max($b);
+                break;
+            case PromotionDiscountConditions::CONDITION_EXP_LT:
+                return $a < min($b);
+                break;
+            case PromotionDiscountConditions::CONDITION_EXP_NE:
+                return !in_array($a, $b);
+                break;
+            default:
+                break;
+        }
+
+        return false;
+    }
+
+    protected static function mergeOperations($operations, $data) {
+        foreach (array_keys(PromotionDiscountConditions::$operations) as $oper) {
+            if (isset($data[$oper])) {
+                $operations[$oper] = isset($operations[$oper]) ? array_merge($operations[$oper], $data[$oper]) : $data[$oper];
+            }
+        }
+        return $operations;
     }
 }

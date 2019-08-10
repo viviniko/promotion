@@ -6,10 +6,8 @@ use Carbon\Carbon;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Config;
-use Viviniko\Cart\Collection;
 use Viviniko\Promotion\Enums\CouponFormat;
 use Viviniko\Promotion\Enums\CouponType;
-use Viviniko\Promotion\Enums\PromotionDiscountConditions;
 use Viviniko\Promotion\Exceptions\InvalidCouponException;
 use Viviniko\Promotion\Repositories\Coupon\CouponRepository;
 use Viviniko\Promotion\Repositories\Promotion\PromotionRepository;
@@ -57,42 +55,15 @@ class PromotionServiceImpl implements PromotionService
         );
     }
 
-    public function formatConditions($dataConditions)
-    {
-        $conditions = [];
-        if (is_null($dataConditions['operation']) || !isset(PromotionDiscountConditions::$operations[$dataConditions['operation']])) {
-            return $conditions;
-        }
-        $conditions['operation'] = $dataConditions['operation'];
-        if (!isset($dataConditions['rules']) || !is_array($dataConditions['rules'])) {
-            return $conditions;
-        }
-        $conditions['rules'] = [];
-        foreach ($dataConditions['rules'] as $rule) {
-            if (!is_null($rule['expression']['item'])) {
-                array_walk($rule['expression'], function (&$item) { $item = trim($item); });
-                if (isset(PromotionDiscountConditions::$conditionItems[$rule['expression']['item']])) {
-                    $conditions['rules'][]['expression'] = $rule['expression'];
-                } else if (!empty($rule['condition'])) {
-                    $children = self::formatConditions($rule['condition']);
-                    if (!empty($children)) {
-                        $conditions['rules'][]['condition'] = $children;
-                    }
-                }
-            }
-        }
-        return $conditions;
-    }
-
     /**
      * Get coupon discount amount.
      *
-     * @param  Collection  $items
+     * @param  $items
      * @param  string  $couponCode
      * @return float
      * @throws InvalidCouponException
      */
-    public function getCouponDiscountAmount(Collection $items, $couponCode)
+    public function calDiscountAmountByCoupon($items, $couponCode)
     {
         $now = new Carbon();
 
@@ -137,10 +108,10 @@ class PromotionServiceImpl implements PromotionService
                     }
                 }
             }
-            
-            $discountAction = new PromotionAction($promotion->discount_action, $promotion->discount_amount, $promotion->discount_conditions);
-            $amount = $discountAction->getDiscountAmount($items);
-            if (!$amount) {
+
+            $amount = $promotion->discount($items);
+
+            if (!$amount || $amount->value == 0) {
                 throw new InvalidCouponException('This coupon doesn\'t apply for items in the cart.');
             }
             return $amount;

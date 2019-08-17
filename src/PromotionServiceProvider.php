@@ -22,8 +22,6 @@ class PromotionServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(__DIR__ . '/../config/promotion.php', 'promotion');
 
         $this->registerRepositories();
-        $this->registerPromotionService();
-        $this->registerCouponService();
 
         $this->registerCommands();
     }
@@ -48,22 +46,6 @@ class PromotionServiceProvider extends ServiceProvider
         );
     }
 
-    private function registerPromotionService()
-    {
-        $this->app->singleton(
-            \Viviniko\Promotion\Services\PromotionService::class,
-            \Viviniko\Promotion\Services\Impl\PromotionServiceImpl::class
-        );
-    }
-
-    private function registerCouponService()
-    {
-        $this->app->singleton(
-            \Viviniko\Promotion\Services\CouponService::class,
-            \Viviniko\Promotion\Services\Impl\CouponServiceImpl::class
-        );
-    }
-
     private function registerCommands()
     {
         $this->app->singleton('command.promotion.table', function ($app) {
@@ -74,8 +56,6 @@ class PromotionServiceProvider extends ServiceProvider
     public function provides()
     {
         return [
-            \Viviniko\Promotion\Services\PromotionService::class,
-            \Viviniko\Promotion\Services\CouponService::class,
         ];
     }
 }

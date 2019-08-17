@@ -10,5 +10,6 @@ class Usage extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['promotion_id', 'coupon_id', 'user_id', 'created_at', 'total_amount', 'discount_amount'];
+    protected $fillable = ['promotion_id', 'coupon_id', 'user_id', 'created_at', 'discount_amount'];
+
 }

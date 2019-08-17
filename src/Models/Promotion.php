@@ -2,7 +2,7 @@
 
 namespace Viviniko\Promotion\Models;
 
-use Viviniko\Currency\Facades\Currency;
+use \Viviniko\Currency\Money;
 use Viviniko\Promotion\Enums\CouponType;
 use Viviniko\Promotion\Enums\PromotionDiscountAction;
 use Viviniko\Promotion\Enums\PromotionDiscountConditions;
@@ -60,27 +60,27 @@ class Promotion extends Model
             }
         }
 
-        $amount = Currency::createBaseAmount(0);
+        $discount = Money::create(0);
         switch ($this->discount_action) {
             case PromotionDiscountAction::PRODUCT_PERCENT:
                 foreach ($discountItems as $item) {
-                    $amount = $amount->add($item->subtotal->mul($this->discount_amount / 100));
+                    $discount = $discount->add($item->subtotal->mul($this->discount_amount / 100));
                 }
                 break;
             case PromotionDiscountAction::PRODUCT_AMOUNT:
-                $amount = $amount->add(Currency::createBaseAmount($this->discount_amount * count($discountItems)));
+                $discount = $discount->add(Money::create($this->discount_amount * count($discountItems)));
                 break;
             case PromotionDiscountAction::CART_AMOUNT:
-                $amount = Currency::createBaseAmount($this->discount_amount);
+                $discount = Money::create($this->discount_amount);
                 break;
             case PromotionDiscountAction::CART_PERCENT:
-                $amount = $cart->subtotal->mul($this->discount_amount / 100);
+                $discount = $cart->subtotal->mul($this->discount_amount / 100);
                 break;
             default:
                 break;
         }
 
-        return $amount;
+        return $discount;
     }
 
     public static function formatConditions($dataConditions)

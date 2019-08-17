@@ -21,10 +21,10 @@ interface PromotionService
      *
      * @param  $items
      * @param  string  $code
-     * @return float
+     * @return \Viviniko\Currency\Money
      * @throws PromotionException
      */
-    public function calDiscountAmountByCoupon($items, $code);
+    public function calDiscountByCoupon($items, $code);
 
     /**
      * Get customer coupons.

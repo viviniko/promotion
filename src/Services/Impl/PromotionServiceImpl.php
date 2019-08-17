@@ -63,7 +63,7 @@ class PromotionServiceImpl implements PromotionService
      * @return float
      * @throws InvalidCouponException
      */
-    public function calDiscountAmountByCoupon($items, $couponCode)
+    public function calDiscountByCoupon($items, $couponCode)
     {
         $now = new Carbon();
 
@@ -109,12 +109,12 @@ class PromotionServiceImpl implements PromotionService
                 }
             }
 
-            $amount = $promotion->discount($items);
+            $discount = $promotion->discount($items);
 
-            if (!$amount || $amount->value == 0) {
+            if (!$discount || !$discount->isValid()) {
                 throw new InvalidCouponException('This coupon doesn\'t apply for items in the cart.');
             }
-            return $amount;
+            return $discount;
         }
 
         throw new InvalidCouponException('This Coupon does not exist.');

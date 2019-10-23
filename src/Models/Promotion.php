@@ -29,7 +29,7 @@ class Promotion extends Model
 
     public function setDiscountConditionsAttribute($value)
     {
-        $this->attributes['discount_conditions'] = self::formatConditions($value);
+        $this->attributes['discount_conditions'] = json_encode(self::formatConditions($value));
     }
 
     public function coupons()
